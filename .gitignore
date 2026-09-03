@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Agent / tooling artifacts
+.agents/
+.opencode/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log

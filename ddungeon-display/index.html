@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ddungeon-display</title>
+    <link rel="stylesheet" href="/src/ui/style.css" />
+  </head>
+  <body>
+    <div class="sidebar">
+      <h1>ddungeon-display</h1>
+
+      <section class="panel">
+        <h2>Generation</h2>
+
+        <div class="field">
+          <label for="preset">Preset</label>
+          <select id="preset">
+            <option value="XS">XS (3×3, 5 rooms)</option>
+            <option value="S">S (4×4, 10 rooms)</option>
+            <option value="M" selected>M (5×5, 16 rooms)</option>
+            <option value="L">L (6×6, 24 rooms)</option>
+            <option value="XL">XL (7×7, 32 rooms)</option>
+            <option value="XXL">XXL (7×8, 38 rooms)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="seed">Seed</label>
+          <div class="seed-row">
+            <input type="text" id="seed" value="default" placeholder="empty = auto" />
+            <button class="icon-btn" id="reroll" title="Clear seed (auto-generate)">⟳</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Grid size (W × H)</label>
+          <div class="pair-row">
+            <input type="number" id="grid-w" min="2" step="1" />
+            <input type="number" id="grid-h" min="2" step="1" />
+          </div>
+        </div>
+
+        <div class="pair-row fields">
+          <div class="field">
+            <label for="rooms">Rooms N</label>
+            <input type="number" id="rooms" min="2" step="1" />
+          </div>
+          <div class="field">
+            <label for="corridors">Corridors E</label>
+            <input type="number" id="corridors" min="1" step="1" />
+          </div>
+        </div>
+
+        <div class="pair-row fields">
+          <div class="field">
+            <label for="min-dist">Min final dist</label>
+            <input type="number" id="min-dist" min="1" step="1" />
+          </div>
+          <div class="field">
+            <label for="spacing">Spacing 1–8</label>
+            <input type="number" id="spacing" min="1" max="8" step="1" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="goal-slack">Goal slack (hops from far end)</label>
+          <input
+            type="number"
+            id="goal-slack"
+            min="0"
+            step="1"
+            placeholder="empty = farthest room"
+          />
+        </div>
+
+        <div class="field">
+          <label for="connectivity">Connectivity 0–1</label>
+          <input type="number" id="connectivity" min="0" max="1" step="0.05" />
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>View</h2>
+
+        <div class="segmented" id="view-mode">
+          <button class="seg-btn active" data-view="graph">Graph</button>
+          <button class="seg-btn" data-view="tile">Tile</button>
+        </div>
+
+        <label class="toggle-row">
+          <span>Grid backdrop</span>
+          <input type="checkbox" id="t-backdrop" checked />
+        </label>
+        <label class="toggle-row">
+          <span>Weight labels</span>
+          <input type="checkbox" id="t-weights" checked />
+        </label>
+        <label class="toggle-row">
+          <span>Shortest path</span>
+          <input type="checkbox" id="t-path" checked />
+        </label>
+        <label class="toggle-row">
+          <span>Loop split</span>
+          <input type="checkbox" id="t-loop" checked />
+        </label>
+        <label class="toggle-row">
+          <span>In-SVG header</span>
+          <input type="checkbox" id="t-header" checked />
+        </label>
+      </section>
+
+      <section class="panel grow">
+        <h2>Validation <span class="badge" id="v-summary">0 violations</span></h2>
+        <ul class="violations" id="violations"></ul>
+      </section>
+
+      <button class="download-btn" id="download">⬇ Download SVG</button>
+    </div>
+
+    <div class="main">
+      <div class="stats-bar">
+        <span class="stats-fields" id="stats-fields"></span>
+        <button class="small-btn" id="json-toggle">JSON</button>
+      </div>
+
+      <div class="error-banner" id="error-banner" hidden></div>
+
+      <div class="viewport" id="viewport"></div>
+
+      <div class="json-panel" id="json-panel">
+        <div class="json-panel-header">
+          <span>Dungeon JSON — paste a <code>ddungeon-gen</code> result, then Apply</span>
+          <div class="json-actions">
+            <button class="small-btn" id="json-apply">Apply</button>
+            <button class="small-btn" id="json-copy">Copy JSON</button>
+            <button class="small-btn" id="json-clear">Clear</button>
+          </div>
+        </div>
+        <div class="json-status" id="json-status"></div>
+        <textarea
+          id="json-input"
+          spellcheck="false"
+          placeholder='{ "seed": …, "gridsize": […], … }'
+        ></textarea>
+      </div>
+    </div>
+
+    <script type="module" src="/src/ui/main.ts"></script>
+  </body>
+</html>

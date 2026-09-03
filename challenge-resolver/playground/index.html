@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Challenge Resolver Playground</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #232733;
+      --border: #2e3345;
+      --text: #e4e6f0;
+      --text-dim: #8b90a5;
+      --peak: #ff6b6b;
+      --mid: #ffa94d;
+      --base: #69db7c;
+      --accent: #7c3aed;
+      --success: #22c55e;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle { color: var(--text-dim); margin-bottom: 2rem; font-size: 0.9rem; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+      max-width: 1100px;
+    }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .panel h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .field-group { margin-bottom: 1.25rem; }
+    .field-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 0.35rem;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="number"]:focus { border-color: var(--accent); }
+
+    .row { display: flex; gap: 0.75rem; }
+    .row > * { flex: 1; }
+
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      margin-top: 0.5rem;
+    }
+
+    .btn-batch {
+      background: #475569;
+      color: white;
+      margin-top: 0.5rem;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 500px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+
+    .stat-card {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .stat-card.peak { border-color: var(--peak); }
+    .stat-card.mid   { border-color: var(--mid); }
+    .stat-card.base  { border-color: var(--base); }
+
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value { font-size: 1.75rem; font-weight: 700; }
+    .stat-card.peak .stat-value { color: var(--peak); }
+    .stat-card.mid   .stat-value { color: var(--mid); }
+    .stat-card.base  .stat-value { color: var(--base); }
+
+    .total-card {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .total-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 0.25rem;
+    }
+
+    .total-value { font-size: 2.5rem; font-weight: 700; color: var(--success); }
+
+    /* Dice display */
+    .dice-section h3 {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .dice-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      min-height: 48px;
+      padding: 1rem;
+      background: var(--surface2);
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .die {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .die.filled-peak {
+      background: rgba(255, 107, 107, 0.15);
+      border-color: var(--peak);
+      color: var(--peak);
+    }
+
+    .die.filled-mid {
+      background: rgba(255, 169, 77, 0.15);
+      border-color: var(--mid);
+      color: var(--mid);
+    }
+
+    .die.filled-base {
+      background: rgba(105, 219, 124, 0.15);
+      border-color: var(--base);
+      color: var(--base);
+    }
+
+    .die.unfilled {
+      opacity: 0.35;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .legend-dot.peak { background: var(--peak); }
+    .legend-dot.mid  { background: var(--mid); }
+    .legend-dot.base { background: var(--base); }
+    .legend-dot.none { background: var(--border); opacity: 0.5; }
+
+    /* Slot breakdown */
+    .slots-info {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: var(--surface2);
+      border-radius: 8px;
+    }
+
+    .slots-info code {
+      background: var(--border);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    /* Statistics distribution */
+    .stats-panel { margin-top: 1rem; }
+    .stats-panel h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .dist-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.4rem 0;
+      font-size: 0.85rem;
+    }
+
+    .dist-label {
+      width: 100px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .dist-bar-container {
+      flex: 1;
+      height: 24px;
+      background: var(--surface2);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .dist-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #6d28d9);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      min-width: 2px;
+    }
+
+    .dist-percent {
+      width: 50px;
+      text-align: right;
+      font-weight: 600;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .batch-info {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--surface2);
+      border-radius: 6px;
+    }
+
+    .history { margin-top: 1rem; }
+    .history h3 {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0.75rem;
+      background: var(--surface2);
+      border-radius: 6px;
+      margin-bottom: 0.4rem;
+      font-size: 0.8rem;
+    }
+
+    .history-item .result {
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-dim);
+    }
+
+    .empty-state p { margin-bottom: 0.5rem; }
+
+    .error-msg {
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid var(--peak);
+      color: var(--peak);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .right-col { display: flex; flex-direction: column; gap: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Challenge Resolver</h1>
+  <p class="subtitle">Tiered Slot-Filling D10 System — Playground</p>
+
+  <div class="layout">
+    <!-- Left: Controls -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <div class="panel">
+        <h2>Thresholds (Constructor)</h2>
+        <div class="field-group">
+          <label for="tx">Peak threshold (die ≥ ?)</label>
+          <input type="number" id="tx" value="10" min="0" max="100">
+        </div>
+        <div class="field-group">
+          <label for="ty">Mid threshold (die ≥ ?)</label>
+          <input type="number" id="ty" value="8" min="0" max="100">
+        </div>
+        <div class="field-group">
+          <label for="tz">Base threshold (die ≥ ?)</label>
+          <input type="number" id="tz" value="6" min="0" max="100">
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Pool Sizes</h2>
+        <div class="row">
+          <div class="field-group">
+            <label for="xa">X (total dice)</label>
+            <input type="number" id="xa" value="6" min="0" max="50">
+          </div>
+          <div class="field-group">
+            <label for="ya">Y</label>
+            <input type="number" id="ya" value="3" min="0" max="50">
+          </div>
+          <div class="field-group">
+            <label for="za">Z</label>
+            <input type="number" id="za" value="1" min="0" max="50">
+          </div>
+        </div>
+        <button class="btn btn-primary" id="rollBtn">Roll Dice</button>
+        <button class="btn btn-batch" id="batchBtn">Roll Dice x100</button>
+        <button class="btn btn-secondary" id="resetBtn">Reset Defaults</button>
+      </div>
+
+      <div class="panel" id="errorPanel" style="display:none;">
+        <div class="error-msg" id="errorMsg"></div>
+      </div>
+    </div>
+
+    <!-- Right: Results -->
+    <div class="right-col">
+      <div class="panel">
+        <h2>Slot Breakdown</h2>
+        <div class="slots-info" id="slotsInfo">
+          Set thresholds and pools, then roll to see results.
+        </div>
+        <div class="stats" id="statsContainer" style="display:none;">
+          <div class="stat-card peak">
+            <div class="stat-label">Peak</div>
+            <div class="stat-value" id="peakStat">0</div>
+          </div>
+          <div class="stat-card mid">
+            <div class="stat-label">Mid</div>
+            <div class="stat-value" id="midStat">0</div>
+          </div>
+          <div class="stat-card base">
+            <div class="stat-label">Base</div>
+            <div class="stat-value" id="baseStat">0</div>
+          </div>
+        </div>
+        <div class="total-card" id="totalCard" style="display:none;">
+          <div class="total-label">Total Successes</div>
+          <div class="total-value" id="totalValue">0</div>
+        </div>
+      </div>
+
+      <div class="panel dice-section">
+        <h2>Dice Results</h2>
+        <div class="legend" id="legend" style="display:none;">
+          <div class="legend-item"><div class="legend-dot peak"></div>Peak (≥Tx)</div>
+          <div class="legend-item"><div class="legend-dot mid"></div>Mid (≥Ty)</div>
+          <div class="legend-item"><div class="legend-dot base"></div>Base (≥Tz)</div>
+          <div class="legend-item"><div class="legend-dot none"></div>No slot</div>
+        </div>
+        <div class="dice-container" id="diceContainer">
+          <div class="empty-state">
+            <p>No rolls yet.</p>
+            <p style="font-size:0.8rem;">Configure thresholds and pools, then hit <strong>Roll Dice</strong>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel stats-panel" id="statsPanel" style="display:none;">
+        <h2>Statistical Distribution (from ${batchCount} rolls)</h2>
+        <div id="distContainer"></div>
+        <div class="batch-info" id="batchInfo"></div>
+      </div>
+
+      <div class="panel history" id="historyPanel" style="display:none;">
+        <h2>History (last 10)</h2>
+        <div id="historyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" id="app-module">
+    import { resolveWithDetail } from "challenge-resolver";
+
+    // DOM references
+    const txInput = document.getElementById('tx');
+    const tyInput = document.getElementById('ty');
+    const tzInput = document.getElementById('tz');
+    const xaInput = document.getElementById('xa');
+    const yaInput = document.getElementById('ya');
+    const zaInput = document.getElementById('za');
+    const rollBtn = document.getElementById('rollBtn');
+    const batchBtn = document.getElementById('batchBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const slotsInfo = document.getElementById('slotsInfo');
+    const statsContainer = document.getElementById('statsContainer');
+    const totalCard = document.getElementById('totalCard');
+    const peakStat = document.getElementById('peakStat');
+    const midStat = document.getElementById('midStat');
+    const baseStat = document.getElementById('baseStat');
+    const totalValue = document.getElementById('totalValue');
+    const diceContainer = document.getElementById('diceContainer');
+    const legend = document.getElementById('legend');
+    const statsPanel = document.getElementById('statsPanel');
+    const distContainer = document.getElementById('distContainer');
+    const batchInfo = document.getElementById('batchInfo');
+    const historyPanel = document.getElementById('historyPanel');
+    const historyList = document.getElementById('historyList');
+    const errorPanel = document.getElementById('errorPanel');
+    const errorMsg = document.getElementById('errorMsg');
+
+    let history = [];
+    let statsData = { counts: {}, totalRolls: 0 };
+
+    function getInputs() {
+      return {
+        Tx: parseInt(txInput.value) || 0,
+        Ty: parseInt(tyInput.value) || 0,
+        Tz: parseInt(tzInput.value) || 0,
+        Xa: parseInt(xaInput.value) || 0,
+        Ya: parseInt(yaInput.value) || 0,
+        Za: parseInt(zaInput.value) || 0
+      };
+    }
+
+    function updateSlotsInfo(Tx, Ty, Tz, X, Y, Z) {
+      const peakSlots = X - Y;
+      const midSlots  = Y - Z;
+      const baseSlots = Z;
+
+      slotsInfo.innerHTML = `
+        <strong>Thresholds:</strong> Peak ≥ <code>${Tx}</code>, Mid ≥ <code>${Ty}</code>, Base ≥ <code>${Tz}</code><br>
+        <strong>Pools:</strong> X=<code>${X}</code> → Y=<code>${Y}</code> → Z=<code>${Z}</code><br>
+        <strong>Slots:</strong> Peak = ${peakSlots} slots, Mid = ${midSlots} slots, Base = ${baseSlots} slots<br>
+        <em>Total: ${X} dice rolled against ${peakSlots + midSlots + baseSlots} slots</em>
+      `;
+    }
+
+    function renderDice(result) {
+      diceContainer.innerHTML = '';
+      for (const item of result.assignment) {
+        const el = document.createElement('div');
+        el.className = 'die' + (item.tier ? ` filled-${item.tier}` : ' unfilled');
+        el.textContent = item.die;
+        el.title = item.tier ? `${item.tier} tier success` : 'No slot filled';
+        diceContainer.appendChild(el);
+      }
+    }
+
+    function updateStats(result) {
+      peakStat.textContent = result.filledPeak;
+      midStat.textContent  = result.filledMid;
+      baseStat.textContent = result.filledBase;
+      totalValue.textContent = result.successes;
+      statsContainer.style.display = '';
+      totalCard.style.display    = '';
+      legend.style.display       = 'flex';
+    }
+
+    function addHistory(result) {
+      history.unshift(result);
+      if (history.length > 10) history.pop();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      historyPanel.style.display = history.length ? '' : 'none';
+      historyList.innerHTML = history.map((r, i) => `
+        <div class="history-item">
+          <span>Dice: [${r.assignment.map(a => a.die).join(', ')}]</span>
+          <span>P:${r.filledPeak} M:${r.filledMid} B:${r.filledBase}</span>
+          <span class="result">${r.successes}</span>
+        </div>
+      `).join('');
+    }
+
+    function updateStatistics(rollResults) {
+      const counts = {};
+      for (const r of rollResults) {
+        counts[r.successes] = (counts[r.successes] || 0) + 1;
+      }
+      statsData = { counts, totalRolls: rollResults.length };
+
+      const maxSuccesses = Math.max(...rollResults.map(r => r.successes), 0);
+      distContainer.innerHTML = '';
+
+      for (let s = 0; s <= maxSuccesses; s++) {
+        const count = counts[s] || 0;
+        const percent = ((count / statsData.totalRolls) * 100).toFixed(1);
+        const row = document.createElement('div');
+        row.className = 'dist-row';
+        row.innerHTML = `
+          <span class="dist-label">${s} success${s !== 1 ? 'es' : ''}</span>
+          <div class="dist-bar-container">
+            <div class="dist-bar" style="width: ${percent}%"></div>
+          </div>
+          <span class="dist-percent">${percent}%</span>
+        `;
+        distContainer.appendChild(row);
+      }
+
+      statsPanel.style.display = '';
+      statsPanel.querySelector('h2').textContent = `Statistical Distribution (${statsData.totalRolls} rolls)`;
+      batchInfo.textContent = `Total: ${statsData.totalRolls} rolls | Average: ${(rollResults.reduce((a, r) => a + r.successes, 0) / statsData.totalRolls).toFixed(2)} successes/roll`;
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorPanel.style.display = '';
+      setTimeout(() => { errorPanel.style.display = 'none'; }, 3000);
+    }
+
+    function rollSingle() {
+      const inputs = getInputs();
+      const rolls = Array.from({ length: inputs.Xa }, () => Math.floor(Math.random() * 10) + 1);
+      const result = resolveWithDetail(rolls, inputs.Tx, inputs.Ty, inputs.Tz, inputs.Xa, inputs.Ya, inputs.Za);
+      updateSlotsInfo(result.Tx, result.Ty, result.Tz, result.X, result.Y, result.Z);
+      updateStats(result);
+      renderDice(result);
+      addHistory(result);
+
+      // Clear batch stats when doing a single roll
+      statsData = { counts: {}, totalRolls: 0 };
+      statsPanel.style.display = 'none';
+    }
+
+    function rollBatch(count) {
+      const inputs = getInputs();
+      const results = [];
+
+      for (let i = 0; i < count; i++) {
+        const rolls = Array.from({ length: inputs.Xa }, () => Math.floor(Math.random() * 10) + 1);
+        const result = resolveWithDetail(rolls, inputs.Tx, inputs.Ty, inputs.Tz, inputs.Xa, inputs.Ya, inputs.Za);
+        results.push(result);
+      }
+
+      // Show last roll's dice
+      const lastResult = results[results.length - 1];
+      updateSlotsInfo(lastResult.Tx, lastResult.Ty, lastResult.Tz, lastResult.X, lastResult.Y, lastResult.Z);
+      updateStats(lastResult);
+      renderDice(lastResult);
+
+      // Clear history for batch
+      history = [];
+      historyPanel.style.display = 'none';
+
+      // Show statistics
+      updateStatistics(results);
+    }
+
+    function reset() {
+      txInput.value = 10;
+      tyInput.value = 8;
+      tzInput.value = 6;
+      xaInput.value = 6;
+      yaInput.value = 3;
+      zaInput.value = 1;
+      slotsInfo.innerHTML = 'Set thresholds and pools, then roll to see results.';
+      statsContainer.style.display = 'none';
+      totalCard.style.display = 'none';
+      legend.style.display = 'none';
+      diceContainer.innerHTML = `
+        <div class="empty-state">
+          <p>No rolls yet.</p>
+          <p style="font-size:0.8rem;">Configure thresholds and pools, then hit <strong>Roll Dice</strong>.</p>
+        </div>
+      `;
+      history = [];
+      historyPanel.style.display = 'none';
+      statsData = { counts: {}, totalRolls: 0 };
+      statsPanel.style.display = 'none';
+    }
+
+    rollBtn.addEventListener('click', rollSingle);
+    batchBtn.addEventListener('click', () => rollBatch(100));
+    resetBtn.addEventListener('click', reset);
+
+    // Enter key triggers single roll
+    [txInput, tyInput, tzInput, xaInput, yaInput, zaInput].forEach(el => {
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter') rollSingle(); });
+    });
+  </script>
+  <!-- playground:file-banner (removed from the single-file build) -->
+  <script>
+    if (location.protocol === 'file:') {
+      var banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;padding:0.75rem 1.25rem;background:#7f1d1d;color:#fecaca;font:0.85rem/1.5 system-ui,sans-serif;';
+      banner.textContent = 'This source playground needs a dev server (browsers cannot load ES modules from file://). Run `npm run playground` and open the printed URL, or run `npm run playground:build` and open playground/dist/index.html.';
+      document.body.prepend(banner);
+    }
+  </script>
+</body>
+</html>
