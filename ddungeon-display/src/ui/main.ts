@@ -41,7 +41,7 @@ const state: State = {
   showWeights: true,
   showPath: true,
   showLoopSplit: true,
-  showHeader: true,
+  showHeader: false,
   jsonMode: false,
   highlight: null,
 };

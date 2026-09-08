@@ -84,7 +84,7 @@ interface ViewOptions {
   showWeights: boolean;    // corridor length labels, default true
   showPath: boolean;       // entrance→goal shortest path overlay, default true
   showLoopSplit: boolean;  // tree vs loop edge colors, default true
-  showHeader: boolean;     // stats text block inside the SVG, default true
+  showHeader: boolean;     // stats text block inside the SVG, default false
   width?: number; height?: number;  // canvas px; default auto-fit
 }
 

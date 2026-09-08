@@ -29,7 +29,7 @@ export interface ViewOptions {
   showPath: boolean;
   /** Tree vs loop edge coloring. Default true. */
   showLoopSplit: boolean;
-  /** Stats text block inside the SVG. Default true. */
+  /** Stats text block inside the SVG. Default false. */
   showHeader: boolean;
   /** Canvas width in px; default auto-fit to the layout. */
   width?: number;
